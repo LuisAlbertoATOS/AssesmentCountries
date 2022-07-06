@@ -6,7 +6,7 @@ fetch(url).then((response)=>{
 }).then(data=>{
     data.forEach(function(element) {
         countryTable.insertAdjacentHTML('beforeend', 
-            "<tr><th id='name'>" + element.name.official + "</th>"
+            "<tr'><th id='name'>" + element.name.official + "</th>"
             + "<td id='capitals'>" + getCapital(element.capital) + "</td>"
             + "<td id='region'>" + element.region + "</td>"
             + "<td id='languages'>" + getLanguages(element.languages) + "</td>"
@@ -16,6 +16,7 @@ fetch(url).then((response)=>{
         );
     });
     sortTable();
+    onRowClick();
   
 }).catch(error=>{
     console.log(error);
@@ -82,3 +83,34 @@ function sortTable() {
         }
     }
 }
+
+function rowClicked(country){
+    const wikipediaURL = "https://en.wikipedia.org/api/rest_v1/page/summary/";
+    var modal = new tingle.modal({
+        closeMethods: ['overlay', 'button', 'escape'],
+        closeLabel: "Close",
+        cssClass: ['custom-class-1', 'custom-class-2'],
+    });
+
+    fetch(wikipediaURL+country).then((response)=>{
+        return response.json();
+    }).then(data=>{
+        modal.setContent(data.extract_html);
+    }).catch(error=>{
+        console.log(error);
+    })
+
+    modal.open();
+}
+
+function onRowClick() {
+    var rows = countryTable.getElementsByTagName("tr");
+    for (i = 0; i < rows.length; i++) {
+        countryTable.rows[i].onclick = function (row) {
+            return function () {
+                var value = row.getElementsByTagName("th")[0].innerHTML;
+                rowClicked(value);
+            };
+        }(countryTable.rows[i]);
+    }
+};
